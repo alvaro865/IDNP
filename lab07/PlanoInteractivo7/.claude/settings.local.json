@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/USER/Desktop/labidnp/IDNP\" \u0026\u0026 find . -ipath \"*lab03*\" -iname \"*.kt\" 2\u003e/dev/null | grep -v build/)",
+      "Glob",
+      "Bash(cd \"C:/Users/USER/Desktop/labidnp/IDNP/lab07/PlanoInteractivo7\" \u0026\u0026 ./gradlew.bat compileDebugKotlin --console\u003dplain 2\u003e\u00261 | tail -80)",
+      "Bash(cd \"C:/Users/USER/Desktop/labidnp/IDNP/lab07/PlanoInteractivo7\" \u0026\u0026 ./gradlew :app:compileDebugKotlin --offline -q 2\u003e\u00261 | tail -100)",
+      "Read(C:\\Users\\USER\\Desktop\\labidnp\\IDNP\\lab05\\app\\src\\main\\java\\com\\example\\campusnavigator_compose\\MainActivity.kt)",
+      "Read(C:\\Users\\USER\\Desktop\\labidnp\\IDNP\\lab05\\app\\build.gradle.kts)",
+      "Bash(cd \"C:/Users/USER/Desktop/labidnp/IDNP/lab07/PlanoInteractivo7\" \u0026\u0026 cat \"../../lab05/app/build.gradle.kts\" 2\u003e/dev/null | head -60; echo ---; cat \"../../lab05/gradle/libs.versions.toml\" 2\u003e/dev/null)",
+      "Read(C:\\Users\\USER\\Desktop\\labidnp\\IDNP\\lab05\\gradle\\libs.versions.toml)",
+      "Bash(cd \"C:/Users/USER/Desktop/labidnp/IDNP/lab07/PlanoInteractivo7\" \u0026\u0026 ./gradlew.bat assembleDebug --console\u003dplain 2\u003e\u00261 | tail -n 80)"
+    ]
+  }
+}

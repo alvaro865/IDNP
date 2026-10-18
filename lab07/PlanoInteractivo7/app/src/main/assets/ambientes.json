@@ -1,0 +1,38 @@
+[
+  {
+    "etiqueta": "Salón 201",
+    "descripcion": "Salón de clases teóricas, capacidad 40 alumnos.",
+    "x": 20,
+    "y": 20,
+    "ancho": 150,
+    "alto": 150,
+    "color": "#FFBBDEFB"
+  },
+  {
+    "etiqueta": "Salón 202",
+    "descripcion": "Salón de clases teóricas, capacidad 40 alumnos.",
+    "x": 180,
+    "y": 20,
+    "ancho": 150,
+    "alto": 150,
+    "color": "#FFC8E6C9"
+  },
+  {
+    "etiqueta": "Lab. Cómputo",
+    "descripcion": "Laboratorio de cómputo con 25 estaciones.",
+    "x": 20,
+    "y": 180,
+    "ancho": 150,
+    "alto": 150,
+    "color": "#FFFFE0B2"
+  },
+  {
+    "etiqueta": "Patio Interior",
+    "descripcion": "Patio interior de descanso y tránsito entre pabellones.",
+    "x": 180,
+    "y": 180,
+    "ancho": 150,
+    "alto": 150,
+    "color": "#FFD7CCC8"
+  }
+]
