@@ -1,0 +1,9 @@
+# id|nombre|categoria|descripcion
+1|Biblioteca Central|Servicios|Préstamo de libros y salas de estudio
+2|Comedor Universitario|Servicios|Alimentación para estudiantes
+3|Facultad de Ingeniería|Académico|Aulas y laboratorios de ingeniería
+4|Facultad de Ciencias|Académico|Aulas y laboratorios de ciencias
+5|Estadio de la Unsa|Deportes|Actividades deportivas y eventos
+6|Auditorio Central|Eventos|Conferencias y ceremonias
+7|Facultad de Ingeniería de Producción y Servicios|Académico|Aulas y laboratorios de la FIPS
+8|Centro de Cómputo|Servicios|Laboratorios de cómputo y soporte
