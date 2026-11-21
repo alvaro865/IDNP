@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
@@ -85,6 +86,33 @@ class AudioGuiaService : Service() {
     private fun reproducirActual() {
         liberarReproductor()
         guardarUltimoEdificio()
+        val uri = Uri.parse(pistas[indice])
+        if (uri.scheme == ContentResolver.SCHEME_ANDROID_RESOURCE) {
+            reproducirRecursoRaw(uri)
+        } else {
+            reproducirArchivo(uri)
+        }
+        // Si no se pudo abrir el audio, el servicio ya se detuvo
+        if (mediaPlayer != null) actualizarNotificacion()
+    }
+
+    /** Audio incluido en res/raw: MediaPlayer.create() lo devuelve ya preparado. */
+    private fun reproducirRecursoRaw(uri: Uri) {
+        val player = MediaPlayer.create(this, uri)
+        if (player == null) {
+            Log.e(TAG, "No se pudo abrir el recurso $uri")
+            detener()
+            return
+        }
+        mediaPlayer = player.apply {
+            configurarListeners()
+            start()
+        }
+        reproduciendo = true
+    }
+
+    /** Audio elegido por el usuario: se prepara en segundo plano con prepareAsync(). */
+    private fun reproducirArchivo(uri: Uri) {
         mediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
@@ -92,9 +120,8 @@ class AudioGuiaService : Service() {
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .build()
             )
-            setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
             try {
-                setDataSource(applicationContext, Uri.parse(pistas[indice]))
+                setDataSource(applicationContext, uri)
             } catch (e: Exception) {
                 // Por ejemplo, si el archivo guardado ya no existe
                 Log.e(TAG, "No se pudo abrir el audio", e)
@@ -102,20 +129,24 @@ class AudioGuiaService : Service() {
                 detener()
                 return
             }
+            configurarListeners()
             setOnPreparedListener {
                 it.start()
                 reproduciendo = true
                 actualizarNotificacion()
             }
-            setOnCompletionListener { detener() }
-            setOnErrorListener { _, what, extra ->
-                Log.e(TAG, "Error en MediaPlayer: what=$what extra=$extra")
-                detener()
-                true
-            }
             prepareAsync()
         }
-        actualizarNotificacion()
+    }
+
+    private fun MediaPlayer.configurarListeners() {
+        setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
+        setOnCompletionListener { detener() }
+        setOnErrorListener { _, what, extra ->
+            Log.e(TAG, "Error en MediaPlayer: what=$what extra=$extra")
+            detener()
+            true
+        }
     }
 
     private fun guardarUltimoEdificio() {

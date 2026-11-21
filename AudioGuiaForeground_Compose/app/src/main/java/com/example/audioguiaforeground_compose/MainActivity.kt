@@ -61,9 +61,9 @@ class MainActivity : ComponentActivity() {
 fun AudioGuiaScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
-    // Lista de reproducción: URIs y títulos de las pistas elegidas
-    var pistas by rememberSaveable { mutableStateOf(listOf<String>()) }
-    var titulos by rememberSaveable { mutableStateOf(listOf<String>()) }
+    // Lista de reproducción: por defecto, los edificios con audio en res/raw
+    var pistas by rememberSaveable { mutableStateOf(EDIFICIOS.map { it.uriAudio(context) }) }
+    var titulos by rememberSaveable { mutableStateOf(EDIFICIOS.map { it.nombre }) }
     var indice by rememberSaveable { mutableIntStateOf(0) }
     var sinPermiso by rememberSaveable { mutableStateOf(false) }
 
@@ -167,11 +167,29 @@ fun AudioGuiaScreen(modifier: Modifier = Modifier) {
             }
         }
 
-        OutlinedButton(
-            onClick = { selectorAudio.launch(arrayOf("audio/*")) },
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Elegir audios")
+            OutlinedButton(
+                onClick = {
+                    if (estadoAudio.activo) {
+                        AudioGuiaService.enviarAccion(context, AudioGuiaService.ACTION_STOP)
+                    }
+                    pistas = EDIFICIOS.map { it.uriAudio(context) }
+                    titulos = EDIFICIOS.map { it.nombre }
+                    indice = 0
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Edificios")
+            }
+            OutlinedButton(
+                onClick = { selectorAudio.launch(arrayOf("audio/*")) },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Elegir audios")
+            }
         }
 
         Row(
