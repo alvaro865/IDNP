@@ -17,7 +17,13 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
+import com.example.audioguiaforeground_compose.data.AudioGuiaDatabase
+import com.example.audioguiaforeground_compose.data.UltimoEdificio
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -35,6 +41,9 @@ class AudioGuiaService : Service() {
     private var titulos: List<String> = emptyList()
     private var indice = 0
     private var reproduciendo = false
+
+    // Corrutinas para escribir en Room fuera del hilo principal
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val titulo: String
         get() = titulos.getOrElse(indice) { "Audioguía" }
@@ -75,6 +84,7 @@ class AudioGuiaService : Service() {
 
     private fun reproducirActual() {
         liberarReproductor()
+        guardarUltimoEdificio()
         mediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
@@ -83,7 +93,15 @@ class AudioGuiaService : Service() {
                     .build()
             )
             setWakeMode(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
-            setDataSource(applicationContext, Uri.parse(pistas[indice]))
+            try {
+                setDataSource(applicationContext, Uri.parse(pistas[indice]))
+            } catch (e: Exception) {
+                // Por ejemplo, si el archivo guardado ya no existe
+                Log.e(TAG, "No se pudo abrir el audio", e)
+                release()
+                detener()
+                return
+            }
             setOnPreparedListener {
                 it.start()
                 reproduciendo = true
@@ -98,6 +116,13 @@ class AudioGuiaService : Service() {
             prepareAsync()
         }
         actualizarNotificacion()
+    }
+
+    private fun guardarUltimoEdificio() {
+        val edificio = UltimoEdificio(uri = pistas[indice], titulo = titulo)
+        scope.launch {
+            AudioGuiaDatabase.obtener(applicationContext).ultimoEdificioDao().guardar(edificio)
+        }
     }
 
     private fun siguiente() {

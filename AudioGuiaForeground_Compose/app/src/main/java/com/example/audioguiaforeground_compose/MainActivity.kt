@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.audioguiaforeground_compose.data.AudioGuiaDatabase
 import com.example.audioguiaforeground_compose.ui.theme.AudioGuiaForeground_ComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +72,12 @@ fun AudioGuiaScreen(modifier: Modifier = Modifier) {
     LaunchedEffect(estadoAudio) {
         if (estadoAudio.activo) indice = estadoAudio.indice
     }
+
+    // Último edificio reproducido, guardado en Room
+    val ultimoEdificioFlow = remember {
+        AudioGuiaDatabase.obtener(context).ultimoEdificioDao().observar()
+    }
+    val ultimoEdificio by ultimoEdificioFlow.collectAsState(initial = null)
 
     val titulo = titulos.getOrElse(indice) { "Ningún audio seleccionado" }
     val estado = when {
@@ -140,6 +148,22 @@ fun AudioGuiaScreen(modifier: Modifier = Modifier) {
                     )
                 }
                 Text(text = "Estado: $estado", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
+        // Retoma el último edificio escuchado (solo si no hay nada sonando)
+        ultimoEdificio?.let { edificio ->
+            if (!estadoAudio.activo) {
+                Button(
+                    onClick = {
+                        pistas = listOf(edificio.uri)
+                        titulos = listOf(edificio.titulo)
+                        reproducirPista(0)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Continuar: ${edificio.titulo}")
+                }
             }
         }
 
